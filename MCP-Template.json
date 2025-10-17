@@ -1,0 +1,168 @@
+{
+  "metadata": {
+    "id": "duckdb2mqtt",
+    "name": "DuckDB2MQTT",
+    "version": "1.0.0",
+    "description": "Base de données analytique DuckDB avec passerelle MQTT pour analyse performante de séries temporelles et agrégations complexes",
+    "author": "moreau66",
+    "category": "core",
+    "tags": ["duckdb", "analytics", "mqtt", "timeseries", "olap"],
+    "icon": "TrendingUp"
+  },
+  "container": {
+    "image": "moreau66/duckdb2mqtt",
+    "defaultVersion": "latest",
+    "autoStart": true,
+    "ports": [
+      {
+        "container": 8081,
+        "host": 8081,
+        "protocol": "tcp",
+        "description": "API REST DuckDB"
+      }
+    ],
+    "volumes": [
+      {
+        "container": "/data",
+        "host": "./duckdb/data",
+        "mode": "rw",
+        "description": "Fichiers de base de données DuckDB"
+      },
+      {
+        "container": "/config",
+        "host": "./duckdb/config",
+        "mode": "rw",
+        "description": "Configuration DuckDB2MQTT"
+      },
+      {
+        "container": "/logs",
+        "host": "./duckdb/logs",
+        "mode": "rw",
+        "description": "Logs du service"
+      },
+      {
+        "container": "/parquet",
+        "host": "./duckdb/parquet",
+        "mode": "rw",
+        "description": "Export Parquet pour analyses externes"
+      }
+    ],
+    "environment": [
+      {
+        "key": "MQTT_BROKER",
+        "value": "mosquitto",
+        "required": true,
+        "description": "Adresse du broker MQTT"
+      },
+      {
+        "key": "MQTT_PORT",
+        "value": "1883",
+        "required": true,
+        "description": "Port du broker MQTT"
+      },
+      {
+        "key": "MQTT_TOPIC",
+        "value": "duckdb/data",
+        "required": true,
+        "description": "Topic de base pour les publications"
+      },
+      {
+        "key": "MQTT_USER",
+        "value": "",
+        "required": false,
+        "description": "Utilisateur MQTT (optionnel)"
+      },
+      {
+        "key": "MQTT_PASS",
+        "value": "",
+        "required": false,
+        "secret": true,
+        "description": "Mot de passe MQTT (optionnel)"
+      },
+      {
+        "key": "DUCKDB_DB_PATH",
+        "value": "/data/analytics.duckdb",
+        "required": true,
+        "description": "Chemin du fichier de base de données DuckDB"
+      },
+      {
+        "key": "MEMORY_LIMIT",
+        "value": "2GB",
+        "required": false,
+        "description": "Limite de mémoire pour les requêtes"
+      },
+      {
+        "key": "THREADS",
+        "value": "4",
+        "required": false,
+        "description": "Nombre de threads pour le parallélisme"
+      },
+      {
+        "key": "AUTO_AGGREGATION",
+        "value": "true",
+        "required": false,
+        "description": "Activer les agrégations automatiques"
+      },
+      {
+        "key": "RETENTION_DAYS",
+        "value": "365",
+        "required": false,
+        "description": "Durée de rétention des données brutes (jours)"
+      },
+      {
+        "key": "PARQUET_EXPORT",
+        "value": "true",
+        "required": false,
+        "description": "Activer l'export automatique en Parquet"
+      }
+    ],
+    "restart": "unless-stopped",
+    "labels": {
+      "discovery.type": "analytics-database",
+      "discovery.core": "true",
+      "neurohomeia.service": "core.analytics"
+    },
+    "healthcheck": {
+      "test": ["CMD-SHELL", "curl -f http://localhost:8081/health || exit 1"],
+      "interval": "30s",
+      "timeout": "10s",
+      "retries": 3,
+      "start_period": "15s"
+    }
+  },
+  "mcp": {
+    "service_id": "duckdb2mqtt",
+    "topics": {
+      "discovery": "mcp/services/duckdb2mqtt/discovery",
+      "data": "duckdb/+/data",
+      "commands": "duckdb/commands/#",
+      "query": "duckdb/query/request",
+      "response": "duckdb/query/response",
+      "aggregates": "duckdb/aggregates/#"
+    },
+    "schemas": {
+      "mcp": "https://github.com/moreau66/MCP-DuckDB2Mqtt/blob/main/schemas/mcp-schema.json",
+      "tools": "https://github.com/moreau66/MCP-DuckDB2Mqtt/blob/main/schemas/mcp-tools-schema.json",
+      "resources": "https://github.com/moreau66/MCP-DuckDB2Mqtt/blob/main/schemas/mcp-resources-schema.json"
+    }
+  },
+  "ui_component": {
+    "component_path": "DuckDBContainer",
+    "mode": "embedded"
+  },
+  "docker_compose": {
+    "depends_on": ["mosquitto"],
+    "networks": ["smart-home-network"],
+    "profiles": ["core", "analytics"]
+  },
+  "dependencies": {
+    "required": ["mosquitto"],
+    "optional": ["sqlite2mqtt"]
+  },
+  "documentation": {
+    "readme_url": "https://github.com/moreau66/MCP-DuckDB2Mqtt/blob/main/README.md",
+    "github_url": "https://github.com/moreau66/MCP-DuckDB2Mqtt",
+    "docker_hub_url": "https://hub.docker.com/r/moreau66/duckdb2mqtt",
+    "mcp_spec_url": "https://github.com/moreau66/MCP-DuckDB2Mqtt/blob/main/docs/MCP_SPEC.md"
+  }
+}
