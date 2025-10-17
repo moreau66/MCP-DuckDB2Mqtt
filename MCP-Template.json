@@ -6,7 +6,7 @@
     "description": "Base de données analytique DuckDB avec passerelle MQTT pour analyse performante de séries temporelles et agrégations complexes",
     "author": "moreau66",
     "category": "core",
-    "tags": ["duckdb", "analytics", "mqtt", "timeseries", "olap"],
+    "tags": ["core", "duckdb", "analytics", "mqtt", "timeseries", "olap"],
     "icon": "TrendingUp"
   },
   "container": {
