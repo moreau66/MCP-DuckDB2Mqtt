@@ -2,7 +2,7 @@
   "metadata": {
     "id": "duckdb2mqtt",
     "name": "DuckDB2MQTT",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Base de données analytique DuckDB avec passerelle MQTT pour analyse performante de séries temporelles et agrégations complexes",
     "author": "moreau66",
     "category": "core",
